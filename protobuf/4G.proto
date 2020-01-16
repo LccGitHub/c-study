@@ -1,0 +1,39 @@
+// 4G->imx8x
+
+// location information for gps
+message LocationInfo {
+required bool isVaild = 1;
+required int64 timestamp = 2;
+required double latitude = 3;
+required double longitude = 4;
+required double altitude = 5;
+}
+
+// location information for 4G net
+message NetInfo {
+enum NET_TYPE {
+NET_TYPE_NULL = 0;
+NET_TYPE_2G = 1;
+NET_TYPE_3G = 2;
+NET_TYPE_4G = 3;
+NET_TYPE_5G = 4;
+
+}
+required NET_TYPE type = 1;
+enum SIGNAL_LEVEL {
+SIG_LEVEL0 = 0;
+SIG_LEVEL1 = 1;
+SIG_LEVEL2 = 2;
+SIG_LEVEL3 = 3;
+SIG_LEVEL4 = 4;
+}
+required SIGNAL_LEVEL siglev = 2;
+required string  operator = 3;
+}
+
+//message info {
+//required  message LocationInfo = 1;
+//required  message NetInfo = 2;
+//}
+
+
