@@ -22,6 +22,7 @@ g++ test/main.cpp -I./include -std=c++11 -L./ -lsocketif -lpthread  -o testsocke
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <string>
 
 #ifdef ENABLE_JSONCPP
 /*
@@ -161,8 +162,21 @@ int main(int argc, char** argv)
         int port = atoi(argv[3]);
         nutshell::E_SOCKET_TYPE isClient = ((atoi(argv[4]) ==  nutshell::E_SOCKET_TYPE_SERVER)? nutshell::E_SOCKET_TYPE_SERVER:nutshell::E_SOCKET_TYPE_CLIENT);
 
-        nutshell::SocketTest test(interface, ip, port);
-        test.start(isClient);
+       nutshell::SocketTest* test = NULL;
+       if (strcmp(interface, "0") == 0 && strcmp(ip, "0") == 0) {
+           test = new nutshell::SocketTest(NULL, NULL, port);
+       }
+       else if (strcmp(interface, "0") != 0 && strcmp(ip, "0") == 0) {
+           test = new nutshell::SocketTest(interface, NULL, port);
+       }
+       else if (strcmp(interface, "0") == 0 && strcmp(ip, "0") != 0) {
+           test = new nutshell::SocketTest(NULL, ip, port);
+       }
+       else {
+            test = new nutshell::SocketTest(interface, ip, port);
+       }
+        
+        test->start(isClient);
 
 
         bool loop_flag = true;
@@ -201,13 +215,13 @@ int main(int argc, char** argv)
 #endif
                 printf("send data: \n");
                 printf("%s \n", temp);
-                test.sendDataReq(temp, len);
+                test->sendDataReq(temp, len);
                 break;
             }
             case 10:
             {
                 printf("Go to >>%s \n", "stop");
-                test.stop();
+                test->stop();
                 break;
             }
             default:

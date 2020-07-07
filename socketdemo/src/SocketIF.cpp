@@ -27,7 +27,18 @@ SocketIF::SocketIF(const char* const interface, const char* const ip, int port)
     : mImp(NULL)
 {
     mImp = new SocketImp(this, interface, ip, port);
-    SOCKET_LOG_I("SocketIF::IF[%s]IP[%s]Port[%d]", interface, ip, port);
+    if (NULL != interface && NULL != ip) {
+        SOCKET_LOG_I("SocketIF::IF[%s]IP[%s]Port[%d]", interface, ip, port);
+    }
+    else if (NULL == interface && NULL != ip) {
+        SOCKET_LOG_I("SocketIF::IF[none]IP[%s]Port[%d]", ip, port);
+    }
+    else if (NULL != interface && NULL == ip) {
+         SOCKET_LOG_I("SocketIF::IF[%s]IP[any]Port[%d]", interface, port);
+    }
+    else {
+        SOCKET_LOG_I("SocketIF::IF[not check]IP[any]Port[%d]", port);
+    }
 }
 
 SocketIF::~SocketIF()

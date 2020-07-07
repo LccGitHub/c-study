@@ -51,7 +51,18 @@ SocketBase::SocketBase(char* const interface, char* const ip, int port)
     , mPort(port)
 {
     mInstance = this;
-    SOCKET_LOG_I("SocketBase::IF[%s]IP[%s]Port[%d]", mInterface, mIp, mPort);
+    if (NULL != mInterface && NULL != mIp) {
+        SOCKET_LOG_I("SocketBase::IF[%s]IP[%s]Port[%d]", mInterface, mIp, mPort);
+    }
+    else if (NULL == mInterface && NULL != mIp) {
+        SOCKET_LOG_I("SocketBase::IF[none]IP[%s]Port[%d]", mIp, mPort);
+    }
+    else if (NULL != mInterface && NULL == mIp) {
+         SOCKET_LOG_I("SocketBase::IF[%s]IP[any]Port[%d]", mInterface, mPort);
+    }
+    else {
+        SOCKET_LOG_I("SocketBase::IF[not check]IP[any]Port[%d]", mPort);
+    }
 }
 
 SocketBase::~SocketBase()
@@ -80,12 +91,17 @@ void SocketBase::init(E_SOCKET_TYPE type)
     pipe(mPipeFd); // init pipe for while exit
     while(mExitState == E_SOCKET_EXIT_FLAG_NONE) {
         // judy interface have up,if not, will wait for 2s cycle
-        if (!isInterfaceUp(mInterface)) {
-            sleep(2);
+        if ((mInterface != NULL) && (!isInterfaceUp(mInterface))) {
+            sleep(1);
             continue;
         }
         else {
-            SOCKET_LOG_I("interface[%s] have up", mInterface);
+            if (NULL == mInterface) {
+                SOCKET_LOG_I("mInterface is NULL, no need to check");
+            }
+            else {
+                SOCKET_LOG_I("interface[%s] have up", mInterface);
+            }
 
             mServerFd = socket(AF_INET, SOCK_STREAM, 0);
             if (mServerFd == -1) {
@@ -155,7 +171,13 @@ void SocketBase::initServerSocket(int fd, const char* ip, int port)
         memset(&serverAddr, 0, sizeof(struct sockaddr_in));
         serverAddr.sin_family = AF_INET;
         serverAddr.sin_port  = htons(port);
-        serverAddr.sin_addr.s_addr = inet_addr(ip);
+        if (NULL == ip) {
+            serverAddr.sin_addr.s_addr = htons(INADDR_ANY);
+            SOCKET_LOG_I("socket server monitor ip is any");
+        }
+        else {
+            serverAddr.sin_addr.s_addr = inet_addr(ip);
+        }
         memset(serverAddr.sin_zero, 0, 8);
 
         int ret = bind(fd, (struct sockaddr*)(&serverAddr), sizeof(serverAddr));
@@ -305,16 +327,21 @@ void SocketBase::sendDataReq(const uint8_t* data, uint32_t len)
 bool SocketBase::isInterfaceUp(const char* interface)
 {
     bool res = false;
-    struct ifreq ifr;
-    int sock = socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP);
-    memset(&ifr, 0, sizeof(ifr));
-    strcpy(ifr.ifr_name, interface);
-    if (ioctl(sock, SIOCGIFFLAGS, &ifr) < 0)  {
-        // SOCKET_LOG_E("SOCGIFGLAGS");
+    if (interface == NULL) {
+        SOCKET_LOG_E("interface is NULL");
     }
-    close(sock);
-    if (!!(ifr.ifr_flags & IFF_UP)) {
-        res = true;
+    else {
+        struct ifreq ifr;
+        int sock = socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP);
+        memset(&ifr, 0, sizeof(ifr));
+        strcpy(ifr.ifr_name, interface);
+        if (ioctl(sock, SIOCGIFFLAGS, &ifr) < 0)  {
+            // SOCKET_LOG_E("SOCGIFGLAGS");
+        }
+        close(sock);
+        if (!!(ifr.ifr_flags & IFF_UP)) {
+            res = true;
+        }
     }
     return res;
 }

@@ -30,6 +30,21 @@ class SocketImp;
 class SocketIF
 {
 public:
+    /**
+     * SocketIF(const char* interface, const char* ip, int port)
+     *
+     * SocketIF construct funciton
+     *
+     * @param [IN] interface  : if interface is NULL, will not check, else will monitor interface is up
+     * @param [IN] ip  : if ip is NULL, will monitor all local interface, else only monitor ip
+     * @param [IN] port  : monitor port
+     *
+     * @return void
+     * @retval
+     * @retval
+     *
+     * @attention Synchronous I/F.
+     */
     explicit SocketIF(const char* interface, const char* ip, int port);
     SocketIF() = delete;
     virtual ~SocketIF();

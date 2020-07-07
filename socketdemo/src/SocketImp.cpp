@@ -27,7 +27,18 @@ SocketImp::SocketImp(SocketIF* IF, const char* interface, const char* ip, const 
     , mIF(IF)
 {
     registerCallBack(this);
-    SOCKET_LOG_I("SocketBase::IF[%s]IP[%s]Port[%d]", interface, ip, port);
+    if (NULL != interface && NULL != ip) {
+        SOCKET_LOG_I("SocketImp::IF[%s]IP[%s]Port[%d]", interface, ip, port);
+    }
+    else if (NULL == interface && NULL != ip) {
+        SOCKET_LOG_I("SocketImp::IF[none]IP[%s]Port[%d]", ip, port);
+    }
+    else if (NULL != interface && NULL == ip) {
+         SOCKET_LOG_I("SocketImp::IF[%s]IP[any]Port[%d]", interface, port);
+    }
+    else {
+        SOCKET_LOG_I("SocketImp::IF[not check]IP[any]Port[%d]", port);
+    }
 }
 
 SocketImp::~SocketImp()
