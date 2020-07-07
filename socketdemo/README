@@ -1,0 +1,34 @@
+## compile
+
+### compile socket if library
+g++ src/*.cpp -I./include -std=c++11  --shared -fPIC -o libsocketif.so
+
+
+### compile socket test demo
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./
+g++ test/main.cpp -I./include -std=c++11 -L./ -lsocketif -lpthread  -o testsocket
+
+### enable compile socket test demo for jsoncpp
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./
+g++ test/main.cpp -I./include -I./jsoncpp/include  -std=c++11 -L./ -lsocketif -lpthread -ljsoncpp -DENABLE_JSONCPP -o testsocket
+
+
+## test socket server
+./testsocket lo 127.0.0.1 8888 0
+
+## test socket client
+./testsocket lo 127.0.0.1 8888 1
+
+
+## NOTE
+interface: phyical link interface
+
+
+
+
+## encry and decry
+openssl genrsa -out private.pem  2048
+openssl rsa -in private.pem -pubout -out public.pem
+
+openssl rsautl -encrypt -in test.txt -out test.enc -inkey public.pem -pubin
+openssl rsautl -decrypt -in test.enc -out test.dec -inkey private.pem
